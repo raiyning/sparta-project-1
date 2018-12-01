@@ -62,20 +62,25 @@ function randomColor(colors) {
 
 
 // Objects
-function Ball(x, y, dy, radius, color) {
+function Ball(x, y, dx, dy, radius, color) {
   this.x = x;
   this.y = y;
+  this.dx = dx
   this.dy = dy;
   this.radius = radius;
   this.color = color;
 
   this.update = function () {
-    if (this.y + this.radius > canvas.height) {
+    if (this.y + this.radius + this.dy > canvas.height) {
       this.dy = -this.dy * friction;
     }
     else {
       this.dy += gravity;
     }
+    if (this.x + this.radius + this.dx > canvas.width || this.x + this.radius + this.dx < 0) {
+      this.dx = -this.dx;
+    }
+    this.x += this.dx;
     this.y += this.dy;
     this.draw();
   };
@@ -94,13 +99,15 @@ function Ball(x, y, dy, radius, color) {
 // Implementation
 var ball;
 var ballArray = []
+var ballNum = 30;
 function init() {
   ball = new Ball(canvas.width / 2, canvas.height / 2, 2, 30, 'red');
-
-  for (var i = 0; i < 500; i++) {
+  var radius = 50;
+  for (var i = 0; i < ballNum; i++) {
     var x = randomIntFromRange(0, canvas.width);
-    var y = randomIntFromRange(0, canvas.width);
-    ballArray.push(new Ball(x, y, 2, 30, 'blue'));
+    var y = randomIntFromRange(0, (canvas.height / 3) - radius);
+    var dx = randomIntFromRange(0, canvas.height - radius);
+    ballArray.push(new Ball(x, y, dx, 2, 30, 'blue'));
   }
   console.log(ballArray);
 }
