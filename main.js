@@ -35,7 +35,8 @@ var colors = [
 ];
 
 var gravity = 1;
-var friction = 0.9;
+var frictionY = 0.9;
+var frictionX = 0.99;
 
 // Event Listeners
 addEventListener("mousemove", function (event) {
@@ -72,15 +73,17 @@ function Ball(x, y, dx, dy, radius, color) {
 
   this.update = function () {
     if (this.y + this.radius + this.dy > canvas.height) {
-      this.dy = -this.dy * friction;
-    }
-    else {
+      this.dy = -this.dy;
+      this.dy = this.dy * frictionY;
+      this.dx = this.dx * frictionY;
+    } else {
       this.dy += gravity;
     }
-    if (this.x + this.radius + this.dx > canvas.width || this.x + this.radius + this.dx < 0) {
-      this.dx = -this.dx;
+
+    if (this.x + this.radius >= canvas.width || this.x - this.radius <= 0) {
+      this.dx = -this.dx * frictionX;
     }
-    this.x += this.dx;
+    this.x += (this.dx);
     this.y += this.dy;
     this.draw();
   };
@@ -101,14 +104,13 @@ var ball;
 var ballArray = []
 var ballNum = 30;
 function init() {
-  ball = new Ball(canvas.width / 2, canvas.height / 2, 2, 30, 'red');
-  var radius = 50;
-  for (var i = 0; i < ballNum; i++) {
-    var x = randomIntFromRange(0, canvas.width);
-    var y = randomIntFromRange(0, (canvas.height / 3) - radius);
-    var dx = randomIntFromRange(0, canvas.height - radius);
-    ballArray.push(new Ball(x, y, dx, 2, 30, 'blue'));
-  }
+  var radius = 30;
+  var x = randomIntFromRange(radius, canvas.width - radius);
+  var y = canvas.height / 2;
+  var dx = randomIntFromRange(-3, 3);
+  var dy = randomIntFromRange(-2, 2);
+
+  ball = new Ball(x, y, dx, dy, 30, 'red');
   console.log(ballArray);
 }
 
@@ -116,9 +118,6 @@ function init() {
 function animate() {
   requestAnimationFrame(animate);
   c.clearRect(0, 0, canvas.width, canvas.height);
-  for (var i = 0; i < ballArray.length; i++) {
-    ballArray[i].update();
-  }
 
   ball.update();
 }
