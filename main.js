@@ -97,12 +97,33 @@ function Ball(x, y, dx, dy, radius, color) {
     c.closePath();
   };
 }
+function Player(x, y, width, height, color) {
+  this.x = x;
+  this.y = y;
+  this.width = width;
+  this.height = height;
+  this.color = color;
+
+  this.update = function () {
+    this.x += (this.dx);
+    this.y += this.dy;
+    this.draw();
+  };
+
+  this.draw = function () {
+    c.beginPath();
+    c.fillRect(this.x, this.y, this.width, this.height);
+    c.fillStyle = this.color;
+    c.fill();
+    c.stroke();
+    c.closePath();
+  };
+}
 
 
 // Implementation
-var ball;
-var ballArray = []
-var ballNum = 30;
+var ball; var player1 = [];
+
 function init() {
   var radius = 30;
   var x = randomIntFromRange(radius, canvas.width - radius);
@@ -110,6 +131,7 @@ function init() {
   var dx = randomIntFromRange(-3, 3);
   var dy = randomIntFromRange(-2, 2);
 
+  ballArray.push(new Player(x, y, radius, randomColor(colors)));
   ball = new Ball(x, y, dx, dy, 30, 'red');
   console.log(ballArray);
 }
