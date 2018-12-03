@@ -46,7 +46,7 @@ controller = {
 };
 
 loop = function () {
-
+  context.clearRect(0, 0, canvas.width, canvas.height);
   if (controller.up && rectangle.jumping == false) {
 
     rectangle.y_velocity -= 20;
@@ -82,9 +82,9 @@ loop = function () {
   }
 
   // if rectangle is going off the left of the screen
-  if (rectangle.x < -context.canvas.width) {
+  if (rectangle.x <= 0) {
 
-    rectangle.x = -context.canvas.width + 10;
+    rectangle.x = 5;
 
   } else if (rectangle.x > context.canvas.width) {// if rectangle goes past right boundary
 
@@ -108,6 +108,7 @@ loop = function () {
 
   // call update when the browser is ready to draw again
   window.requestAnimationFrame(loop);
+
 
 };
 

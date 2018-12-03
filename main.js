@@ -103,13 +103,9 @@ function Player(x, y, width, height, color) {
   this.width = width;
   this.height = height;
   this.color = color;
-
   this.update = function () {
-    this.x += (this.dx);
-    this.y += this.dy;
     this.draw();
   };
-
   this.draw = function () {
     c.beginPath();
     c.fillRect(this.x, this.y, this.width, this.height);
@@ -119,10 +115,29 @@ function Player(x, y, width, height, color) {
     c.closePath();
   };
 }
+controller = {
+  left: false,
+  right: false,
+  up: false,
+  keyListener: function (event) {
+    var key_state = (event.type == "keydown") ? true : false;
+    switch (event.keyCode) {
+      case 37:// left key
+        controller.left = key_state;
+        break;
+      case 38:// up key
+        controller.up = key_state;
+        break;
+      case 39:// right key
+        controller.right = key_state;
+        break;
+    }
+  }
+};
 
 
 // Implementation
-var ball; var player1 = [];
+var ball; var player1;
 
 function init() {
   var radius = 30;
@@ -131,17 +146,18 @@ function init() {
   var dx = randomIntFromRange(-3, 3);
   var dy = randomIntFromRange(-2, 2);
 
-  ballArray.push(new Player(x, y, radius, randomColor(colors)));
+  player1 = new Player(canvas.width / 3, canvas.height / 3, 32, 32, 'blue');
   ball = new Ball(x, y, dx, dy, 30, 'red');
-  console.log(ballArray);
+  console.log(ball);
+  console.log(player1);
 }
 
 // Animation Loop
 function animate() {
   requestAnimationFrame(animate);
   c.clearRect(0, 0, canvas.width, canvas.height);
-
   ball.update();
+  player1.update();
 }
 
 init();
