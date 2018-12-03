@@ -3,8 +3,8 @@ var context, controller, rectangle, loop;
 
 context = document.querySelector("canvas").getContext("2d");
 
-context.canvas.height = 180;
-context.canvas.width = 320;
+context.canvas.width = innerWidth;
+context.canvas.height = innerHeight;
 
 rectangle = {
 
@@ -73,22 +73,22 @@ loop = function () {
   rectangle.y_velocity *= 0.9;// friction
 
   // if rectangle is falling below floor line
-  if (rectangle.y > 180 - 16 - 32) {
+  if (rectangle.y > context.canvas.height - 16 - 32) {
 
     rectangle.jumping = false;
-    rectangle.y = 180 - 16 - 32;
+    rectangle.y = context.canvas.height - 16 - 32;
     rectangle.y_velocity = 0;
 
   }
 
   // if rectangle is going off the left of the screen
-  if (rectangle.x < -32) {
+  if (rectangle.x < -context.canvas.width) {
 
-    rectangle.x = 320;
+    rectangle.x = -context.canvas.width + 10;
 
-  } else if (rectangle.x > 320) {// if rectangle goes past right boundary
+  } else if (rectangle.x > context.canvas.width) {// if rectangle goes past right boundary
 
-    rectangle.x = -32;
+    rectangle.x = context.canvas.width - 10;
 
   }
 
@@ -104,6 +104,7 @@ loop = function () {
   context.moveTo(0, 164);
   context.lineTo(320, 164);
   context.stroke();
+
 
   // call update when the browser is ready to draw again
   window.requestAnimationFrame(loop);
