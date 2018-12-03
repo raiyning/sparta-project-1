@@ -16,41 +16,25 @@ function distance(x1, y1, x2, y2) {
 // Initial Setup
 var canvas = document.querySelector('canvas');
 var c = canvas.getContext('2d');
-
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
 
 // Variables
+var controller;
 var mouse = {
   x: innerWidth / 2,
   y: innerHeight / 2
 };
-
 var colors = [
   '#2185C5',
   '#7ECEFD',
   '#FFF6E5',
   '#FF7F66'
 ];
-
 var gravity = 1;
 var frictionY = 0.9;
 var frictionX = 0.99;
-
-// Event Listeners
-addEventListener("mousemove", function (event) {
-  mouse.x = event.clientX;
-  mouse.y = event.clientY;
-});
-
-addEventListener("resize", function () {
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
-
-  init();
-});
-
 
 // Utility Functions
 function randomIntFromRange(min, max) {
@@ -97,21 +81,53 @@ function Ball(x, y, dx, dy, radius, color) {
     c.closePath();
   };
 }
-function Player(x, y, width, height, color) {
+function Player(x, y, dx, dy, width, height, color, jumping) {
   this.x = x;
   this.y = y;
+  this.dx = dx;
+  this.dy = dy;
   this.width = width;
   this.height = height;
   this.color = color;
+  this.jumping = jumping;
   this.update = function () {
+    if (controller.up && this.jumping === false) {
+      this.dy -= 20;
+      this.jumping = true;
+    }
+    if (controller.left) {
+      this.dx -= 0.5;
+    }
+    if (controller.right) {
+      this.dx += 0.5;
+    }
+
+    this.dy += 1.5;// gravity
+    this.x += this.dx;
+    this.y += this.dy;
+    this.dx *= 0.9;// friction
+    this.dy *= 0.9;// friction
+
+    // if rectangle is falling below floor line
+    if (this.y > c.canvas.height - 16 - 32) {
+      this.jumping = false;
+      this.y = c.canvas.height - 16 - 32;
+      this.dy = 0;
+    }
+    // if rectangle is going off the left of the screen
+    if (this.x <= 0) {
+      this.x = 5;
+    } else if (this.x > c.canvas.width) {// if rectangle goes past right boundary
+      this.x = c.canvas.width - 10;
+    }
     this.draw();
   };
   this.draw = function () {
     c.beginPath();
+    c.fillStyle = `${this.color}`;
     c.fillRect(this.x, this.y, this.width, this.height);
-    c.fillStyle = this.color;
     c.fill();
-    c.stroke();
+    //c.stroke();
     c.closePath();
   };
 }
@@ -135,6 +151,19 @@ controller = {
   }
 };
 
+// Event Listeners
+addEventListener("mousemove", function (event) {
+  mouse.x = event.clientX;
+  mouse.y = event.clientY;
+});
+
+addEventListener("resize", function () {
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+  init();
+});
+window.addEventListener("keydown", controller.keyListener);
+window.addEventListener("keyup", controller.keyListener);
 
 // Implementation
 var ball; var player1;
@@ -146,7 +175,7 @@ function init() {
   var dx = randomIntFromRange(-3, 3);
   var dy = randomIntFromRange(-2, 2);
 
-  player1 = new Player(canvas.width / 3, canvas.height / 3, 32, 32, 'blue');
+  player1 = new Player(canvas.width / 3, canvas.height / 3, 0, 0, 32, 32, 'blue', true);
   ball = new Ball(x, y, dx, dy, 30, 'red');
   console.log(ball);
   console.log(player1);
