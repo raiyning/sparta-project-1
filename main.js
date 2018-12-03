@@ -167,7 +167,6 @@ window.addEventListener("keyup", controller.keyListener);
 
 // Implementation
 var ball; var player1;
-
 function init() {
   var radius = 30;
   var x = randomIntFromRange(radius, canvas.width - radius);
@@ -180,7 +179,6 @@ function init() {
   console.log(ball);
   console.log(player1);
 }
-
 // Animation Loop
 function animate() {
   requestAnimationFrame(animate);
@@ -188,6 +186,5 @@ function animate() {
   ball.update();
   player1.update();
 }
-
 init();
 animate();
