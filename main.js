@@ -10,7 +10,6 @@ function randomColor(colors) {
 function distance(x1, y1, x2, y2) {
   const xDist = x2 - x1
   const yDist = y2 - y1
-
   return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2))
 }
 
@@ -74,6 +73,8 @@ function Ball(x, y, dx, dy, radius, color) {
     c.closePath();
   };
 }
+
+
 function Player(x, y, dx, dy, width, height, color, jumping) {
   this.x = x;
   this.y = y;
@@ -112,24 +113,8 @@ function Player(x, y, dx, dy, width, height, color, jumping) {
       this.x = 5;
     } else if (this.x > c.canvas.width) {// if rectangle goes past right boundary
       this.x = c.canvas.width - 10;
-      // ******check ball collisions***********
-      this.checkPlayers_BallCollision();
     }
     this.draw();
-  };
-  this.checkPlayers_BallCollision = function () {
-    var p1_ball_distance = getDistance(player1.x, player1.y, ball.x, ball.y) - player1.size - ball.size;
-    if (p1_ball_distance < 0) {
-      this.collide(ball, player1);
-    }
-  }
-  this.collide = function (cir1, cir2) {
-    var dx = (cir1.x - cir2.x) / (cir1.size);
-    var dy = (cir1.y - cir2.y) / (cir1.size);
-    cir2.xVel = -dx;
-    cir2.yVel = -dy;
-    cir1.xVel = dx;
-    cir1.yVel = dy;
   };
   this.draw = function () {
     c.beginPath();
@@ -140,6 +125,7 @@ function Player(x, y, dx, dy, width, height, color, jumping) {
     c.closePath();
   };
 }
+
 controller = {
   left: false,
   right: false,
@@ -159,7 +145,6 @@ controller = {
     }
   }
 };
-
 // Event Listeners
 addEventListener("mousemove", function (event) {
   mouse.x = event.clientX;
@@ -194,6 +179,17 @@ function animate() {
   c.clearRect(0, 0, canvas.width, canvas.height);
   ball.update();
   player1.update();
+  if (distance(ball.x, ball.y, player1.x, player1.y) < ball.radius) {
+    if (player1.x > ball.x) {
+
+      ball.dx = -ball.dx - 10;
+    }
+    else
+      ball.dx = -ball.dx + 10;
+  }
+
+
+
 }
 init();
 animate();
