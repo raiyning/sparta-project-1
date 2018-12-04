@@ -62,21 +62,20 @@ function randomColor(colors) {
 
 
 // Objects
-function Ball(x, y, dy, radius, color) {
+function Ball(x, y, dx, dy, radius, color) {
   this.x = x;
   this.y = y;
+  this.dx = dx;
   this.dy = dy;
   this.radius = radius;
   this.color = color;
-
   this.update = function () {
     this.draw();
   };
-
   this.draw = function () {
     c.beginPath();
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-    c.fillStyle = this.color;
+    c.strokeStyle = this.color;
     c.fill();
     c.stroke();
     c.closePath();
@@ -85,18 +84,22 @@ function Ball(x, y, dy, radius, color) {
 
 
 // Implementation
-var ball;
+var ball1;
+var ball2;
 function init() {
-  ball = new Ball(canvas.width / 2, canvas.height / 2, 2, 30, 'red');
+  var x = randomIntFromRange(0, canvas.width - 30);
+  var y = randomIntFromRange(0, canvas.height - 30);
+  ball1 = new Ball(x, y, 2, 2, 30, 'red');
+  ball2 = new Ball(x, y, 2, 2, 30, 'blue');
 
-  console.log(ball);
 }
 
 // Animation Loop
 function animate() {
   requestAnimationFrame(animate);
   c.clearRect(0, 0, canvas.width, canvas.height);
-  ball.update();
+  ball1.update();
+  ball2.update();
 }
 
 init();
