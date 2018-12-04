@@ -127,9 +127,12 @@ function Player(x, y, dx, dy, width, height, color, jumping) {
 }
 
 controller = {
-  left: false,
-  right: false,
-  up: false,
+  left1: false,
+  right1: false,
+  up1: false,
+  left2: false,
+  right2: false,
+  up2: false,
   keyListener: function (event) {
     var key_state = (event.type == "keydown") ? true : false;
     switch (event.keyCode) {
@@ -142,6 +145,12 @@ controller = {
       case 39:// right key
         controller.right = key_state;
         break;
+      case 68://player2 right
+        controller.right2 = key_state;
+      case 87://player2 up
+        controller.up2 = key_state;
+      case 65://player2 left
+        controller.left2 = key_state;
     }
   }
 };
@@ -160,7 +169,7 @@ window.addEventListener("keydown", controller.keyListener);
 window.addEventListener("keyup", controller.keyListener);
 
 // Implementation
-var ball; var player1;
+var ball; var player1; var player2;
 function init() {
   var radius = 30;
   var x = randomIntFromRange(radius, canvas.width - radius);
@@ -168,7 +177,8 @@ function init() {
   var dx = randomIntFromRange(-3, 3);
   var dy = randomIntFromRange(-2, 2);
 
-  player1 = new Player(canvas.width / 3, canvas.height / 3, 0, 0, 32, 32, 'blue', true);
+  player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, 32, 32, 'blue', true);
+  player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, 32, 32, 'blue', true);
   ball = new Ball(x, y, dx, dy, 30, 'red');
   console.log(ball);
   console.log(player1);
