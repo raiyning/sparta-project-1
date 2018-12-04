@@ -1,3 +1,4 @@
+// Utility Functions
 function randomIntFromRange(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
@@ -12,6 +13,7 @@ function distance(x1, y1, x2, y2) {
 
   return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2))
 }
+
 
 // Initial Setup
 var canvas = document.querySelector('canvas');
@@ -35,15 +37,6 @@ var colors = [
 var gravity = 1;
 var frictionY = 0.9;
 var frictionX = 0.99;
-
-// Utility Functions
-function randomIntFromRange(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-function randomColor(colors) {
-  return colors[Math.floor(Math.random() * colors.length)];
-}
 
 
 // Objects
@@ -119,8 +112,24 @@ function Player(x, y, dx, dy, width, height, color, jumping) {
       this.x = 5;
     } else if (this.x > c.canvas.width) {// if rectangle goes past right boundary
       this.x = c.canvas.width - 10;
+      // ******check ball collisions***********
+      this.checkPlayers_BallCollision();
     }
     this.draw();
+  };
+  this.checkPlayers_BallCollision = function () {
+    var p1_ball_distance = getDistance(player1.x, player1.y, ball.x, ball.y) - player1.size - ball.size;
+    if (p1_ball_distance < 0) {
+      this.collide(ball, player1);
+    }
+  }
+  this.collide = function (cir1, cir2) {
+    var dx = (cir1.x - cir2.x) / (cir1.size);
+    var dy = (cir1.y - cir2.y) / (cir1.size);
+    cir2.xVel = -dx;
+    cir2.yVel = -dy;
+    cir1.xVel = dx;
+    cir1.yVel = dy;
   };
   this.draw = function () {
     c.beginPath();
