@@ -34,7 +34,7 @@ var colors = [
   '#FFF6E5',
   '#FF7F66'
 ];
-var gravity = 1.2;
+var gravity = 1;
 var frictionY = 0.9;
 var frictionX = 0.99;
 
@@ -74,24 +74,23 @@ function Ball(x, y, dx, dy, radius, color) {
     c.closePath();
   };
 }
-function Gate(x, y, radius, color) {
-  this.x = x;
-  this.y = y;
-  this.radius = radius;
-  this.color = color;
-
-  this.update = function () {
-    this.draw();
-  };
-
-  this.draw = function () {
-    c.beginPath();
-    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-    c.fillStyle = this.color;
-    c.fill();
-    c.stroke();
-    c.closePath();
-  };
+function renderGates() {
+  c.save();
+  c.beginPath();
+  c.moveTo(0, canvas.height);
+  c.lineTo(0, canvas.height - 200);
+  c.strokeStyle = "black";
+  c.lineWidth = 30;
+  c.stroke();
+  c.closePath();
+  c.beginPath();
+  c.moveTo(canvas.width, canvas.height);
+  c.lineTo(canvas.width, canvas.height - 200);
+  c.strokeStyle = "blue";
+  c.lineWidth = 30;
+  c.stroke();
+  c.closePath();
+  c.restore();
 }
 
 
@@ -213,7 +212,7 @@ window.addEventListener("keydown", controller.keyListener);
 window.addEventListener("keyup", controller.keyListener);
 
 // Implementation
-var ball; var player1; var player2;
+var ball; var player1; var player2; var leftGate
 function init() {
   var radius = 30;
   var x = randomIntFromRange(radius, canvas.width - radius);
@@ -242,6 +241,13 @@ function animate() {
     }
     else
       ball.dx = (-ball.dx + 10) * 1.1;
+  }
+  renderGates();
+  if (ball.x + ball.radius >= canvas.width - 1 && ball.y + ball.radius + ball.dy > canvas.height - 200) {
+    ball.x = canvas.width / 2;
+    ball.y = canvas.height / 3;
+    ball.dx = randomIntFromRange(-10, 10);
+    ball.dy = randomIntFromRange(-2, 2);
   }
 
 }
