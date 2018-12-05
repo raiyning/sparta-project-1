@@ -23,6 +23,7 @@ canvas.height = innerHeight;
 
 // Variables
 var controller;
+var controller2;
 var mouse = {
   x: innerWidth / 2,
   y: innerHeight / 2
@@ -33,7 +34,7 @@ var colors = [
   '#FFF6E5',
   '#FF7F66'
 ];
-var gravity = 1;
+var gravity = 1.2;
 var frictionY = 0.9;
 var frictionX = 0.99;
 
@@ -73,9 +74,28 @@ function Ball(x, y, dx, dy, radius, color) {
     c.closePath();
   };
 }
+function Gate(x, y, radius, color) {
+  this.x = x;
+  this.y = y;
+  this.radius = radius;
+  this.color = color;
+
+  this.update = function () {
+    this.draw();
+  };
+
+  this.draw = function () {
+    c.beginPath();
+    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    c.fillStyle = this.color;
+    c.fill();
+    c.stroke();
+    c.closePath();
+  };
+}
 
 
-function Player(x, y, dx, dy, width, height, color, jumping) {
+function Player(x, y, dx, dy, width, height, color, jumping, player) {
   this.x = x;
   this.y = y;
   this.dx = dx;
@@ -84,18 +104,32 @@ function Player(x, y, dx, dy, width, height, color, jumping) {
   this.height = height;
   this.color = color;
   this.jumping = jumping;
+  this.player = player;
   this.update = function () {
-    if (controller.up && this.jumping === false) {
-      this.dy -= 20;
-      this.jumping = true;
+    if (this.player === 1) {
+      if (controller.up && this.jumping === false) {
+        this.dy -= 20;
+        this.jumping = true;
+      }
+      if (controller.left) {
+        this.dx -= 0.5;
+      }
+      if (controller.right) {
+        this.dx += 0.5;
+      }
     }
-    if (controller.left) {
-      this.dx -= 0.5;
+    else if (this.player === 2) {
+      if (controller2.up2 && this.jumping === false) {
+        this.dy -= 20;
+        this.jumping = true;
+      }
+      if (controller2.left2) {
+        this.dx -= 0.5;
+      }
+      if (controller2.right2) {
+        this.dx += 0.5;
+      }
     }
-    if (controller.right) {
-      this.dx += 0.5;
-    }
-
     this.dy += 1.5;// gravity
     this.x += this.dx;
     this.y += this.dy;
@@ -130,9 +164,6 @@ controller = {
   left1: false,
   right1: false,
   up1: false,
-  left2: false,
-  right2: false,
-  up2: false,
   keyListener: function (event) {
     var key_state = (event.type == "keydown") ? true : false;
     switch (event.keyCode) {
@@ -145,15 +176,28 @@ controller = {
       case 39:// right key
         controller.right = key_state;
         break;
-      case 68://player2 right
-        controller.right2 = key_state;
-      case 87://player2 up
-        controller.up2 = key_state;
-      case 65://player2 left
-        controller.left2 = key_state;
     }
   }
 };
+controller2 = {
+  left2: false,
+  right2: false,
+  up2: false,
+  keyListener: function (event) {
+    var key_state2 = (event.type == "keydown") ? true : false;
+    switch (event.keyCode) {
+      case 68://player2  d key right
+        controller2.right2 = key_state2;
+        break;
+      case 87://player2  w key up
+        controller2.up2 = key_state2;
+        break;
+      case 65://player2 a key left
+        controller2.left2 = key_state2;
+        break;
+    }
+  }
+}
 // Event Listeners
 addEventListener("mousemove", function (event) {
   mouse.x = event.clientX;
@@ -177,11 +221,12 @@ function init() {
   var dx = randomIntFromRange(-3, 3);
   var dy = randomIntFromRange(-2, 2);
 
-  player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, 32, 32, 'blue', true);
-  player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, 32, 32, 'blue', true);
+  player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, 32, 32, 'blue', true, 1);
+  player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, 32, 32, 'blue', true, 2);
   ball = new Ball(x, y, dx, dy, 30, 'red');
   console.log(ball);
   console.log(player1);
+  console.log(player2);
 }
 // Animation Loop
 function animate() {
@@ -189,16 +234,15 @@ function animate() {
   c.clearRect(0, 0, canvas.width, canvas.height);
   ball.update();
   player1.update();
+  player2.update();
   if (distance(ball.x, ball.y, player1.x, player1.y) < ball.radius) {
     if (player1.x > ball.x) {
 
-      ball.dx = -ball.dx - 10;
+      ball.dx = (-ball.dx - 10) * 1.1;
     }
     else
-      ball.dx = -ball.dx + 10;
+      ball.dx = (-ball.dx + 10) * 1.1;
   }
-
-
 
 }
 init();
