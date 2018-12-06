@@ -1,4 +1,6 @@
-// Utility Functions
+//****************************************************************************************************************/
+/***********  Utility functions **********************************************************************************/
+//***************************************************************************************************************/ 
 function randomIntFromRange(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
@@ -6,22 +8,22 @@ function randomIntFromRange(min, max) {
 function randomColor(colors) {
   return colors[Math.floor(Math.random() * colors.length)]
 }
-
 function distance(x1, y1, x2, y2) {
   const xDist = x2 - x1
   const yDist = y2 - y1
   return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2))
 }
-
-
-// Initial Setup
+//****************************************************************************************************************/
+/***********  Initial Setup ********************************************************************************************/
+//***************************************************************************************************************/ 
 var canvas = document.querySelector('canvas');
 var c = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
-
-// Variables
+//****************************************************************************************************************/
+/***********  Variable ********************************************************************************************/
+//***************************************************************************************************************/ 
 var controller;
 var controller2;
 var mouse = {
@@ -35,11 +37,13 @@ var colors = [
   '#FF7F66'
 ];
 var gravity = 1;
-var frictionY = 0.9;
+var frictionY = 0.99; 
 var frictionX = 0.99;
 
-
-// Objects
+//****************************************************************************************************************/
+/***********  Objects ********************************************************************************************/
+//***************************************************************************************************************/ 
+//this is ball
 function Ball(x, y, dx, dy, radius, color) {
   this.x = x;
   this.y = y;
@@ -57,8 +61,11 @@ function Ball(x, y, dx, dy, radius, color) {
       this.dy += gravity;
     }
 
-    if (this.x + this.radius >= canvas.width || this.x - this.radius <= 0) {
+    if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
       this.dx = -this.dx * frictionX;
+    }
+    if (this.y + this.radius < 0) {
+      this.dy = -this.dy;
     }
     this.x += (this.dx);
     this.y += this.dy;
@@ -74,6 +81,7 @@ function Ball(x, y, dx, dy, radius, color) {
     c.closePath();
   };
 }
+//creating the goalposts
 function renderGates() {
   c.save();
   c.beginPath();
@@ -93,7 +101,7 @@ function renderGates() {
   c.restore();
 }
 
-
+//creating Players
 function Player(x, y, dx, dy, width, height, color, jumping, player) {
   this.x = x;
   this.y = y;
@@ -107,7 +115,7 @@ function Player(x, y, dx, dy, width, height, color, jumping, player) {
   this.update = function () {
     if (this.player === 1) {
       if (controller.up && this.jumping === false) {
-        this.dy -= 20;
+        this.dy -= 30;
         this.jumping = true;
       }
       if (controller.left) {
@@ -119,7 +127,7 @@ function Player(x, y, dx, dy, width, height, color, jumping, player) {
     }
     else if (this.player === 2) {
       if (controller2.up2 && this.jumping === false) {
-        this.dy -= 20;
+        this.dy -= 30;
         this.jumping = true;
       }
       if (controller2.left2) {
@@ -136,16 +144,16 @@ function Player(x, y, dx, dy, width, height, color, jumping, player) {
     this.dy *= 0.9;// friction
 
     // if rectangle is falling below floor line
-    if (this.y > c.canvas.height - 16 - 32) {
+    if (this.y > c.canvas.height - 1 - 32) {
       this.jumping = false;
-      this.y = c.canvas.height - 16 - 32;
+      this.y = c.canvas.height - 1 - 32;
       this.dy = 0;
     }
     // if rectangle is going off the left of the screen
     if (this.x <= 0) {
       this.x = 5;
     } else if (this.x > c.canvas.width) {// if rectangle goes past right boundary
-      this.x = c.canvas.width - 10;
+      this.x = c.canvas.width - 30;
     }
     this.draw();
   };
@@ -158,7 +166,7 @@ function Player(x, y, dx, dy, width, height, color, jumping, player) {
     c.closePath();
   };
 }
-
+// controller containing logic
 controller = {
   left1: false,
   right1: false,
@@ -197,7 +205,9 @@ controller2 = {
     }
   }
 }
-// Event Listeners
+//****************************************************************************************************************/
+/***********  Event Listeners  ***********************************************************************************/
+//***************************************************************************************************************/
 addEventListener("mousemove", function (event) {
   mouse.x = event.clientX;
   mouse.y = event.clientY;
@@ -210,9 +220,11 @@ addEventListener("resize", function () {
 });
 window.addEventListener("keydown", controller.keyListener);
 window.addEventListener("keyup", controller.keyListener);
+window.addEventListener("keydown", controller2.keyListener);
+window.addEventListener("keyup", controller2.keyListener);
 
 // Implementation
-var ball; var player1; var player2; var leftGate
+var ball; var player1; var player2;
 function init() {
   var radius = 30;
   var x = randomIntFromRange(radius, canvas.width - radius);
@@ -221,7 +233,7 @@ function init() {
   var dy = randomIntFromRange(-2, 2);
 
   player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, 32, 32, 'blue', true, 1);
-  player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, 32, 32, 'blue', true, 2);
+  player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, 32, 32, 'red', true, 2);
   ball = new Ball(x, y, dx, dy, 30, 'red');
   console.log(ball);
   console.log(player1);
@@ -234,22 +246,62 @@ function animate() {
   ball.update();
   player1.update();
   player2.update();
+  //when ball hit player 1
   if (distance(ball.x, ball.y, player1.x, player1.y) < ball.radius) {
-    if (player1.x > ball.x) {
-
+    if (player1.x >= ball.x) {
       ball.dx = (-ball.dx - 10) * 1.1;
+      player1.dx = -player1.dx + 2;
     }
-    else
+    if (player1.x < ball.x) {
       ball.dx = (-ball.dx + 10) * 1.1;
+      player1.dx = -player1.dx - 2;
+    }
+    if (player1.y >= ball.y) {
+      ball.dy = -ball.dy - 10;
+    }
+  }
+  //when ball hit player 2
+  if (distance(ball.x, ball.y, player2.x, player2.y) < ball.radius) {
+    if (player2.x >= ball.x) {
+      ball.dx = (-ball.dx - 10) * 1.1;
+      player2.dx = -player2.dx + 2;
+    }
+    if (player2.x < ball.x) {
+      ball.dx = (-ball.dx + 10) * 1.1;
+      player2.dx = -player2.dx - 2;
+    }
+    if (player2.y >= ball.y) {
+      ball.dy = -ball.dy - 10;
+    }
   }
   renderGates();
+  //when ball hits gate and respawn
   if (ball.x + ball.radius >= canvas.width - 1 && ball.y + ball.radius + ball.dy > canvas.height - 200) {
     ball.x = canvas.width / 2;
     ball.y = canvas.height / 3;
-    ball.dx = randomIntFromRange(-10, 10);
+    ball.dx = 0;//randomIntFromRange(-10, 10);
     ball.dy = randomIntFromRange(-2, 2);
+    player1.x = canvas.width / 4;
+    player2.x = canvas.width * 3 / 4;
+  }
+  if (ball.x - ball.radius <= 1 && ball.y + ball.radius + ball.dy > canvas.height - 200) {
+    ball.x = canvas.width / 2;
+    ball.y = canvas.height / 4;
+    ball.dx = 0;//randomIntFromRange(-10, 10);
+    ball.dy = randomIntFromRange(-2, 2);
+    player1.x = canvas.width / 3;
+    player2.x = canvas.width * 3 / 4;
   }
 
 }
 init();
 animate();
+
+// collision for player 2
+// score
+// if p1.goals+3 > p2.goals
+// min 5goals
+// decrease canvas - it's tad too big for the whole big
+// naming players?
+// choose colour
+// start page, instructions and leaderboards - local storage
