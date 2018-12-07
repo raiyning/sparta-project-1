@@ -14,7 +14,7 @@ Created a simple 2d football game with simple physics and borders and goal posts
  
 #### You can view the page [ https://raiyning.github.io/sparta-project-1/]()
  
-### Challenges (you can include images and code block here)
+### Challenges
 1. Creating gravity movement 
 2. Collision logic and appropriate boundaries 
 3. Creating keyboard bindings and letting user move canvas object
