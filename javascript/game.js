@@ -4,7 +4,6 @@
 function randomIntFromRange(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
-
 function randomColor() {
   var color = "#";
   for (var i = 0; i < 6; i++) {
@@ -24,14 +23,12 @@ var canvas = document.querySelector('canvas');
 var c = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
-
 //****************************************************************************************************************/
 /***********  Variable ********************************************************************************************/
 //***************************************************************************************************************/ 
-var winScore = 2;
+var winScore = 5;//goals needed to win
 var ball;
-var player1; var player2;
-var player1Score; var player2Score;
+var player1; var player2; //initialising players
 var player1Controller; var player2Controller;
 var controller; var controller2;
 var mouse = {
@@ -44,7 +41,8 @@ var frictionX = 0.99; //ball
 var playerGravity = 1.5;
 var playerFrictionX = 0.93;
 var playerFrictionY = 0.9;
-
+var squareWidth = 35;//player size
+var jumpDistance = 30;//jump height of players
 //****************************************************************************************************************/
 /***********  Objects ********************************************************************************************/
 //***************************************************************************************************************/ 
@@ -74,7 +72,6 @@ function Ball(x, y, dx, dy, radius, color) {
     this.y += this.dy;
     this.draw();
   };
-
   this.draw = function () {
     c.beginPath();
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
@@ -104,7 +101,6 @@ function renderGates(color1, color2) {
   c.closePath();
   c.restore();
 }
-
 //creating Players
 function Player(x, y, dx, dy, width, height, color, jumping, player, score) {
   this.x = x;
@@ -118,9 +114,9 @@ function Player(x, y, dx, dy, width, height, color, jumping, player, score) {
   this.player = player;
   this.score = score;
   this.update = function () {
-    if (this.player === 1) {
+    if (this.player === 1) {//logic for when jumped
       if (controller.up && this.jumping === false) {
-        this.dy -= 30;
+        this.dy -= jumpDistance;
         this.jumping = true;
       }
       if (controller.left) {
@@ -131,14 +127,14 @@ function Player(x, y, dx, dy, width, height, color, jumping, player, score) {
       }
     }
     else if (this.player === 2) {
-      if (controller2.up2 && this.jumping === false) {
+      if (controller.up2 && this.jumping === false) {
         this.dy -= 30;
         this.jumping = true;
       }
-      if (controller2.left2) {
+      if (controller.left2) {
         this.dx -= 0.5;
       }
-      if (controller2.right2) {
+      if (controller.right2) {
         this.dx += 0.5;
       }
     }
@@ -147,11 +143,10 @@ function Player(x, y, dx, dy, width, height, color, jumping, player, score) {
     this.y += this.dy;
     this.dx *= playerFrictionX;// friction
     this.dy *= playerFrictionY;// friction
-
     // if rectangle is falling below floor line
-    if (this.y > c.canvas.height - 1 - 32) {
+    if (this.y > c.canvas.height - 1 - squareWidth) {
       this.jumping = false;
-      this.y = c.canvas.height - 1 - 32;
+      this.y = c.canvas.height - 1 - squareWidth;
       this.dy = 0;
     }
     // if rectangle is going off the left of the screen
@@ -172,9 +167,10 @@ function Player(x, y, dx, dy, width, height, color, jumping, player, score) {
 }
 // controller containing logic
 controller = {
-  left1: false,
-  right1: false,
-  up1: false,
+  left: false,
+  right: false,
+  up: false,
+  reset: false,
   keyListener: function (event) {
     var key_state = (event.type == "keydown") ? true : false;
     switch (event.keyCode) {
@@ -187,43 +183,32 @@ controller = {
       case 39:// right key
         controller.right = key_state;
         break;
+      case 68://player2  d key right
+        controller.right2 = key_state;
+        break;
+      case 87://player2  w key up
+        controller.up2 = key_state;
+        break;
+      case 65://player2 a key left
+        controller.left2 = key_state;
+        break;
+      case 82:// press R to restart
+        controller.reset = key_state;
+        break
     }
   }
 };
-
-controller2 = {
-  left2: false,
-  right2: false,
-  up2: false,
-  keyListener: function (event) {
-    var key_state2 = (event.type == "keydown") ? true : false;
-    switch (event.keyCode) {
-      case 68://player2  d key right
-        controller2.right2 = key_state2;
-        break;
-      case 87://player2  w key up
-        controller2.up2 = key_state2;
-        break;
-      case 65://player2 a key left
-        controller2.left2 = key_state2;
-        break;
-    }
-  }
-}
 function clearScore() {
   player1.score = 0;
   player2.score = 0;
 }
-function clickReset() {
-  clearScore();
-  init();
-}
+//renders score text, calculate score conditions based on winScore value and restarts when reset triggered
 function displayScore() {
   c.beginPath();
   c.font = "30px Comic Sans MS";
   c.fillStyle = "black";
   c.textAlign = "center";
-  c.fillText(`${player1.score} - ${player2.score}`, canvas.width / 32, canvas.height / 16);
+  c.fillText(`${player1.score} - ${player2.score}`, canvas.width / squareWidth, canvas.height / 16);
   c.closePath();
   if (player1.score >= winScore || player2.score >= winScore) {
     if (player1.score - player2.score >= 2) {
@@ -231,39 +216,50 @@ function displayScore() {
       c.font = "30px Comic Sans MS";
       c.fillStyle = "black";
       c.textAlign = "center";
-      c.fillText(`player 1 victory royale`, canvas.width / 2, canvas.height / 4);
-      c.fillText(`click anywhere`, canvas.width / 3, (canvas.height / 4) - 40);
+      c.fillText(`Player 1 Victory Royale`, canvas.width / 2, canvas.height / 4);
+      c.fillText(`Click R to reset`, canvas.width / 2, (canvas.height / 4) + 40);
       c.closePath();
-      window.addEventListener("click", clickReset());
-      //console.log(window.addEventListener("click", clickReset()));
+      if (controller.reset === true) {
+        clearScore();
+        init();
+      }
     }
     else if (player2.score - player1.score >= 2) {
       c.beginPath();
       c.font = "30px Comic Sans MS";
       c.fillStyle = "black";
       c.textAlign = "center";
-      c.fillText(`player 2 victory royale`, canvas.width / 2, canvas.height / 4);
+      c.fillText(`Player 2 Victory Royale`, canvas.width / 2, canvas.height / 4);
+      c.fillText(`Click R to reset`, canvas.width / 2, (canvas.height / 4) + 40);
       c.closePath();
-      window.addEventListener("click", function clickReset() {
+      if (controller.reset === true) {
         clearScore();
         init();
-      });
-
+      }
     }
-    else {
+    else if (player2.score - player1.score >= 1 && player2.score - player1.score < 2) {
       c.beginPath();
       c.font = "30px Comic Sans MS";
       c.fillStyle = "black";
       c.textAlign = "center";
-      c.fillText(`deuce`, canvas.width / 2, canvas.height / 4);
+      c.fillText(`Advantage player 2`, canvas.width / 2, canvas.height / 4);
+      c.closePath();
+    }
+    else if (player1.score - player2.score >= 1 && player1.score - player2.score < 2) {
+      c.beginPath();
+      c.font = "30px Comic Sans MS";
+      c.fillStyle = "black";
+      c.textAlign = "center";
+      c.fillText(`Advantage player 1`, canvas.width / 2, canvas.height / 4);
       c.closePath();
     }
   }
 }
+//After goal is scored play the ball again and reposisition players to start
 function softReset() {
   ball.x = canvas.width / 2;
   ball.y = canvas.height / 3;
-  ball.dx = 0;//randomIntFromRange(-10, 10);
+  ball.dx = randomIntFromRange(-5, 5);
   ball.dy = randomIntFromRange(-2, 2);
   player1.x = canvas.width / 4;
   player2.x = canvas.width * 3 / 4;
@@ -275,7 +271,6 @@ addEventListener("mousemove", function (event) {
   mouse.x = event.clientX;
   mouse.y = event.clientY;
 });
-
 addEventListener("resize", function () {
   canvas.width = innerWidth;
   canvas.height = innerHeight;
@@ -283,22 +278,22 @@ addEventListener("resize", function () {
 });
 window.addEventListener("keydown", controller.keyListener);
 window.addEventListener("keyup", controller.keyListener);
-window.addEventListener("keydown", controller2.keyListener);
-window.addEventListener("keyup", controller2.keyListener);
 
 //****************************************************************************************************************/
 /***********  Implementation  ***********************************************************************************/
 //***************************************************************************************************************/
 function init() {
   var radius = 30;
-  player1Score = 0; player2Score = 0;
-  player1Controller = 2; player2Controller = 1;
-  var x = randomIntFromRange(radius, canvas.width - radius);
-  var y = canvas.height / 2;
+  var player1Score = 0;
+  var player2Score = 0;
+  player1Controller = 2;
+  player2Controller = 1;
+  var x = canvas.width / 2;//randomIntFromRange(radius, canvas.width - radius);
+  var y = randomIntFromRange(radius, canvas.height - radius);
   var dx = randomIntFromRange(-3, 3);
   var dy = randomIntFromRange(-2, 2);
-  player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, 32, 32, 'blue', true, player1Controller, player1Score);
-  player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, 32, 32, 'red', true, player2Controller, player2Score);
+  player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, squareWidth, squareWidth, 'blue', true, player1Controller, player1Score);
+  player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, squareWidth, squareWidth, 'red', true, player2Controller, player2Score);
   ball = new Ball(x, y, dx, dy, 30, randomColor());
   console.log(ball);
   console.log(player1);
@@ -314,8 +309,7 @@ function animate() {
   player1.update();
   player2.update();
   displayScore();
-  //when ball hit player 1
-  if (distance(ball.x, ball.y, player1.x, player1.y) < ball.radius) {
+  if (distance(ball.x, ball.y, player1.x, player1.y) < ball.radius) {  //when ball hit player 1
     if (player1.x >= ball.x) {
       ball.dx = (-ball.dx - 10) * 1.1;
       player1.dx = -player1.dx + 2;
@@ -330,16 +324,9 @@ function animate() {
   }
   //when ball hit player 2
   if (distance(ball.x, ball.y, player2.x, player2.y) < ball.radius) {
-    if (player2.x >= ball.x) {
-      ball.dx = (-ball.dx - 10) * 1.1;
-      player2.dx = -player2.dx + 2;
-    }
-    if (player2.x < ball.x) {
+    if (player2.x - squareWidth * 2 < ball.x) {
       ball.dx = (-ball.dx + 10) * 1.1;
       player2.dx = -player2.dx - 2;
-    }
-    if (player2.y >= ball.y) {
-      ball.dy = -ball.dy - 10;
     }
   }
   renderGates(player1.color, player2.color);  //when ball hits gate and respawn
@@ -353,9 +340,7 @@ function animate() {
     player2.score++;
     displayScore();
   }
-
 }
-
 //****************************************************************************************************************/
 /***********  START PROGRAM ***********************************************************************************/
 //***************************************************************************************************************/
