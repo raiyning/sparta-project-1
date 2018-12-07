@@ -39,10 +39,10 @@ var gravity = 1; //ball gravity
 var frictionY = 0.9; //ball friction
 var frictionX = 0.99; //ball
 var playerGravity = 1.5;
-var playerFrictionX = 0.93;
+var playerFrictionX = 0.95;
 var playerFrictionY = 0.9;
 var squareWidth = 35;//player size
-var jumpDistance = 30;//jump height of players
+var jumpDistance = 35;//jump height of players
 //****************************************************************************************************************/
 /***********  Objects ********************************************************************************************/
 //***************************************************************************************************************/ 
@@ -128,7 +128,7 @@ function Player(x, y, dx, dy, width, height, color, jumping, player, score) {
     }
     else if (this.player === 2) {
       if (controller.up2 && this.jumping === false) {
-        this.dy -= 30;
+        this.dy -= jumpDistance;
         this.jumping = true;
       }
       if (controller.left2) {
@@ -171,6 +171,7 @@ controller = {
   right: false,
   up: false,
   reset: false,
+  startPage: false,
   keyListener: function (event) {
     var key_state = (event.type == "keydown") ? true : false;
     switch (event.keyCode) {
@@ -194,6 +195,9 @@ controller = {
         break;
       case 82:// press R to restart
         controller.reset = key_state;
+        break
+      case 49:// press 1 to go to start page
+        controller.startPage = key_state;
         break
     }
   }
@@ -264,6 +268,13 @@ function softReset() {
   player1.x = canvas.width / 4;
   player2.x = canvas.width * 3 / 4;
 }
+function backgroundSong() {
+  myGamePiece = new component(30, 30, "red", 10, 120);
+  mySound = new sound("");
+  myMusic = new sound("");
+  myMusic.play();
+  myGameArea.start();
+}
 //****************************************************************************************************************/
 /***********  Event Listeners  ***********************************************************************************/
 //***************************************************************************************************************/
@@ -278,7 +289,6 @@ addEventListener("resize", function () {
 });
 window.addEventListener("keydown", controller.keyListener);
 window.addEventListener("keyup", controller.keyListener);
-
 //****************************************************************************************************************/
 /***********  Implementation  ***********************************************************************************/
 //***************************************************************************************************************/
@@ -295,9 +305,6 @@ function init() {
   player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, squareWidth, squareWidth, 'blue', true, player1Controller, player1Score);
   player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, squareWidth, squareWidth, 'red', true, player2Controller, player2Score);
   ball = new Ball(x, y, dx, dy, 30, randomColor());
-  console.log(ball);
-  console.log(player1);
-  console.log(player2);
 }
 //****************************************************************************************************************/
 /***********  Animation Loop  ***********************************************************************************/
@@ -323,10 +330,17 @@ function animate() {
     }
   }
   //when ball hit player 2
-  if (distance(ball.x, ball.y, player2.x, player2.y) < ball.radius) {
-    if (player2.x - squareWidth * 2 < ball.x) {
+  if (distance(player2.x, player2.y, ball.x, ball.y) < ball.radius) {
+    if (player2.x >= ball.x) {
+      ball.dx = (-ball.dx - 10) * 1.1;
+      player2.dx = -player2.dx + 2;
+    }
+    if (player2.x < ball.x) {
       ball.dx = (-ball.dx + 10) * 1.1;
       player2.dx = -player2.dx - 2;
+    }
+    if (player2.y >= ball.y) {
+      ball.dy = -ball.dy - 10;
     }
   }
   renderGates(player1.color, player2.color);  //when ball hits gate and respawn
