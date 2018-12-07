@@ -360,18 +360,3 @@ function animate() {
 //***************************************************************************************************************/
 init();
 animate();
-
-
-// min 5goals
-// implement dat gui 
-/*
-* balls - from one to ?
-* gravity, friction - for the player 2
-* gravity, friction - for the player 1
-* gravity, friction - for the balls
-* controls for p1, p2, ball
-*/
-// decrease canvas - it's tad too big for the whole big
-// naming players?
-// choose colour
-// start page, instructions and leaderboards - local storage

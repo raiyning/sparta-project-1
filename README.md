@@ -1,16 +1,16 @@
 # sparta-project-1
 ### Description
-Created a simple 2d football game with simple physics and borders and goal posts for 2 players using only keyboard controllers.
+Created a simple 2d football game with simple physics and borders and goal posts using javascript and canvas. For 2 players using only keyboard controllers.
  
 ### Languages used
 * html5
 * css
 * javascript
-### packages used
-* canvas 
  
 ### How to download
-follow the link and clone the project https://github.com/raiyning/sparta-project-1
+1. follow the link and clone the project https://github.com/raiyning/sparta-project-1
+2. please open the index.html file 
+3. Explore the web-page and play the game 
  
 #### You can view the page [here]()
  
