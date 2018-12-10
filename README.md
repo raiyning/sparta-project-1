@@ -13,7 +13,7 @@ Created a simple 2d football game with simple physics and borders and goal posts
 2. Please open the link below  
 3. Explore the web-page and play the game
  
-#### You can view the page [ https://raiyning.github.io/sparta-project-1/]()
+#### You can view the page https://raiyning.github.io/sparta-project-1/
  
 ### Challenges
 1. Creating gravity movement 
