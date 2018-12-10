@@ -9,7 +9,8 @@ Created a simple 2d football game with simple physics and borders and goal posts
  
 ### How to download
 1. follow the link and clone the project https://raiyning.github.com/sparta-project-1/
-2. please open the index.html file 
+ to contribute and explore
+2. Please open the link below  
 3. Explore the web-page and play the game
  
 #### You can view the page [ https://raiyning.github.io/sparta-project-1/]()
