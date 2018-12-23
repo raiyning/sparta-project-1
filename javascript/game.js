@@ -42,6 +42,8 @@ var playerGravity = 1.5;
 var playerFrictionX = 0.95;
 var playerFrictionY = 0.9;
 var squareWidth = 35;//player size
+var playerRadius = 25;
+var ballRadius = 35;
 var jumpDistance = 35;//jump height of players
 //****************************************************************************************************************/
 /***********  Objects ********************************************************************************************/
@@ -102,13 +104,12 @@ function renderGates(color1, color2) {
   c.restore();
 }
 //creating Players
-function Player(x, y, dx, dy, width, height, color, jumping, player, score) {
+function Player(x, y, dx, dy, radius, color, jumping, player, score) {
   this.x = x;
   this.y = y;
   this.dx = dx;
   this.dy = dy;
-  this.width = width;
-  this.height = height;
+  this.radius = radius;
   this.color = color;
   this.jumping = jumping;
   this.player = player;
@@ -144,24 +145,26 @@ function Player(x, y, dx, dy, width, height, color, jumping, player, score) {
     this.dx *= playerFrictionX;// friction
     this.dy *= playerFrictionY;// friction
     // if rectangle is falling below floor line
-    if (this.y > c.canvas.height - 1 - squareWidth) {
+    if (this.y > c.canvas.height - 1 - radius) {
       this.jumping = false;
-      this.y = c.canvas.height - 1 - squareWidth;
+      this.y = c.canvas.height - 1 - radius;
       this.dy = 0;
     }
     // if rectangle is going off the left of the screen
     if (this.x <= 0) {
       this.x = 5;
     } else if (this.x > c.canvas.width) {// if rectangle goes past right boundary
-      this.x = c.canvas.width - 30;
+      this.x = c.canvas.width;
     }
     this.draw();
   };
   this.draw = function () {
     c.beginPath();
-    c.fillStyle = `${this.color}`;
-    c.fillRect(this.x, this.y, this.width, this.height);
+    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    c.lineWidth = 2;
+    c.fillStyle = this.color;
     c.fill();
+    c.stroke();
     c.closePath();
   };
 }
@@ -302,9 +305,9 @@ function init() {
   var y = randomIntFromRange(radius, canvas.height - radius);
   var dx = randomIntFromRange(-3, 3);
   var dy = randomIntFromRange(-2, 2);
-  player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, squareWidth, squareWidth, 'blue', true, player1Controller, player1Score);
-  player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, squareWidth, squareWidth, 'red', true, player2Controller, player2Score);
-  ball = new Ball(x, y, dx, dy, 30, randomColor());
+  ball = new Ball(x, y, dx, dy, ballRadius, randomColor());
+  player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, playerRadius, 'blue', true, player1Controller, player1Score);
+  player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, playerRadius, 'red', true, player2Controller, player2Score)
 }
 //****************************************************************************************************************/
 /***********  Animation Loop  ***********************************************************************************/
