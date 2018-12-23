@@ -1,6 +1,6 @@
 //****************************************************************************************************************/
 /***********  Utility functions **********************************************************************************/
-//***************************************************************************************************************/ 
+//***************************************************************************************************************/
 function randomIntFromRange(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
@@ -82,14 +82,14 @@ function resolveCollision(particle, otherParticle) {
 }
 //****************************************************************************************************************/
 /***********  Initial Setup ********************************************************************************************/
-//***************************************************************************************************************/ 
+//***************************************************************************************************************/
 var canvas = document.querySelector('canvas');
 var c = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 //****************************************************************************************************************/
 /***********  Variable ********************************************************************************************/
-//***************************************************************************************************************/ 
+//***************************************************************************************************************/
 var winScore = 5;//goals needed to win
 var ball;
 var player1; var player2; //initialising players
@@ -111,7 +111,7 @@ var ballRadius = 35;
 var jumpDistance = 35;//jump height of players
 //****************************************************************************************************************/
 /***********  Objects ********************************************************************************************/
-//***************************************************************************************************************/ 
+//***************************************************************************************************************/
 //this is ball
 function Ball(x, y, dx, dy, radius, color) {
   this.x = x;
@@ -348,7 +348,7 @@ function displayScore() {
         init();
       }
     }
-    //when player2 gains advantage condition 
+    //when player2 gains advantage condition
     else if (player2.score - player1.score >= 1 && player2.score - player1.score < 2) {
       c.beginPath();
       c.font = "30px Comic Sans MS";
@@ -357,7 +357,7 @@ function displayScore() {
       c.fillText(`Advantage player 2`, canvas.width / 2, canvas.height / 4);
       c.closePath();
     }
-    //when player2 gains advantage condition 
+    //when player2 gains advantage condition
     else if (player1.score - player2.score >= 1 && player1.score - player2.score < 2) {
       c.beginPath();
       c.font = "30px Comic Sans MS";
@@ -425,12 +425,32 @@ function animate() {
   player2.update();
   displayScore();
 
+  //console.log(distance(player1.x, player1.y, player2.x, player2.y));
+  console.log(` ${player2.x - player1.x} ${player2.y - player1.y}`);
+  if (distance(player1.x, player1.y, player2.x, player2.y) < playerRadius * 2) {
+    if (player2.x - player1.x > -playerRadius * 2 && player2.x - player1.x < playerRadius) {
+      player1.dx = -player1.dx + 2;
+      player2.dx = -player2.dx - 2;
+    }
+    if (player2.x - player1.x < playerRadius * 2 && player2.x - player1.x >= -playerRadius) {
+      player1.dx = -player1.dx - 2;
+      player2.dx = -player2.dx + 2;
+    }
+    if (player1.y - player2.y < playerRadius * 2 && player1.y - player2.y > -playerRadius) {
+      player2.dy = -player2.dy - 2;
+    }
+    if (player2.y - player1.y < playerRadius * 2 && player2.y - player1.y > -playerRadius) {
+      player1.dy = -player1.dy - 2;
+    }
+  }
+
+
   renderGates(player1.color, player2.color);  //when ball hits gate and respawn
   if (ball.x + ball.radius >= canvas.width - 1 && ball.y + ball.radius + ball.dy > canvas.height - 200) {
     softReset();
     player1.score++;
     displayScore();
-  }   // The ball hitting the left gate 
+  }   // The ball hitting the left gate
   if (ball.x - ball.radius <= 1 && ball.y + ball.radius + ball.dy > canvas.height - 200) {
     softReset();
     player2.score++;
