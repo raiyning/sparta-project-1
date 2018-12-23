@@ -16,6 +16,70 @@ function distance(x1, y1, x2, y2) {
   const yDist = y2 - y1
   return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2))
 }
+/**
+ * Rotates coordinate system for velocities
+ *
+ * Takes velocities and alters them as if the coordinate system they're on was rotated
+ *
+ * @param  Object | velocity | The velocity of an individual particle
+ * @param  Float  | angle    | The angle of collision between two objects in radians
+ * @return Object | The altered x and y velocities after the coordinate system has been rotated
+ */
+
+function rotate(velocityX, velocityY, angle) {
+  const rotatedVelocities = {
+    x: velocityX * Math.cos(angle) - velocityY * Math.sin(angle),
+    y: velocityX * Math.sin(angle) + velocityY * Math.cos(angle)
+  };
+
+  return rotatedVelocities;
+}
+/**
+ * Swaps out two colliding particles' x and y velocities after running through
+ * an elastic collision reaction equation
+ *
+ * @param  Object | particle      | A particle object with x and y coordinates, plus velocity
+ * @param  Object | otherParticle | A particle object with x and y coordinates, plus velocity
+ * @return Null | Does not return a value
+ */
+
+function resolveCollision(particle, otherParticle) {
+  const xVelocityDiff = particle.dx - otherParticle.dx;
+  const yVelocityDiff = particle.dy - otherParticle.dy;
+
+  const xDist = otherParticle.x - particle.x;
+  const yDist = otherParticle.y - particle.y;
+
+  // Prevent accidental overlap of particles
+  if (xVelocityDiff * xDist + yVelocityDiff * yDist >= 0) {
+
+    // Grab angle between the two colliding particles
+    const angle = -Math.atan2(otherParticle.y - particle.y, otherParticle.x - particle.x);
+
+    // Store mass in var for better readability in collision equation
+    const m1 = particle.mass;
+    const m2 = otherParticle.mass;
+
+    // Velocity before equation
+    const u1 = rotate(particle.dx, particle.dy, angle);
+    const u2 = rotate(otherParticle.dx, otherParticle.dy, angle);
+
+    // Velocity after 1d collision equation
+    const v1 = { x: u1.x * (m1 - m2) / (m1 + m2) + u2.x * 2 * m2 / (m1 + m2), y: u1.y };
+    const v2 = { x: u2.x * (m1 - m2) / (m1 + m2) + u1.x * 2 * m2 / (m1 + m2), y: u2.y };
+
+    // Final velocity after rotating axis back to original location
+    const vFinal1 = rotate(v1.x, v2.y, -angle);
+    const vFinal2 = rotate(v2.x, v2.y, -angle);
+    console.log(vFinal1);
+    // Swap particle velocities for realistic bounce effect
+    particle.dx = vFinal1.x;
+    particle.dy = vFinal1.y;
+
+    // otherParticle.dx = vFinal2.x;
+    // otherParticle.dy = vFinal2.y;
+  }
+}
 //****************************************************************************************************************/
 /***********  Initial Setup ********************************************************************************************/
 //***************************************************************************************************************/ 
@@ -42,6 +106,8 @@ var playerGravity = 1.5;
 var playerFrictionX = 0.95;
 var playerFrictionY = 0.9;
 var squareWidth = 35;//player size
+var playerRadius = 25;
+var ballRadius = 35;
 var jumpDistance = 35;//jump height of players
 //****************************************************************************************************************/
 /***********  Objects ********************************************************************************************/
@@ -54,9 +120,10 @@ function Ball(x, y, dx, dy, radius, color) {
   this.dy = dy;
   this.radius = radius;
   this.color = color;
+  this.mass = 1;
   this.update = function () {
     if (this.y + this.radius + this.dy > canvas.height) {
-      this.dy = -this.dy;
+      this.dy = -(this.dy * 0.9);
       this.dy = this.dy * frictionY;
       this.dx = this.dx * frictionY;
     } else {
@@ -70,6 +137,41 @@ function Ball(x, y, dx, dy, radius, color) {
     }
     this.x += (this.dx);
     this.y += this.dy;
+    //when ball hit player 1
+    if (distance(ball.x + ball.dx, ball.y + ball.dy, player1.x + player1.dx, player1.y + player1.dy) < ball.radius + playerRadius) {
+      if (player1.x + player1.radius >= ball.x + ball.radius) {
+        ball.dx = -ball.dx - 5;
+        player1.dx = -player1.dx + 2;
+      }
+      if (player1.x < ball.x) {
+        ball.dx = -ball.dx + 5;
+        player1.dx = -player1.dx - 2;
+      }
+      if (player1.y >= ball.y) {
+        ball.dy = -ball.dy - 10;
+      }
+      if (player1.y < ball.y) {
+        ball.dy = -ball.dy - 1;
+        player1.dy = -player1.dx - 10;
+      }
+    }
+    if (distance(ball.x + ball.dx, ball.y + ball.dy, player2.x + player2.dx, player2.y + player2.dy) < ball.radius + playerRadius) {
+      if (player2.x >= ball.x) {
+        ball.dx = -ball.dx - 10;
+        player2.dx = -player2.dx + 2;
+      }
+      if (player2.x < ball.x) {
+        ball.dx = -ball.dx + 10;
+        player2.dx = -player2.dx - 2;
+      }
+      if (player2.y >= ball.y) {
+        ball.dy = -ball.dy - 10;
+      }
+      if (player2.y < ball.y) {
+        ball.dy = -ball.dy - 1;
+        player2.dy = -player2.dx - 10;
+      }
+    }
     this.draw();
   };
   this.draw = function () {
@@ -102,17 +204,17 @@ function renderGates(color1, color2) {
   c.restore();
 }
 //creating Players
-function Player(x, y, dx, dy, width, height, color, jumping, player, score) {
+function Player(x, y, dx, dy, radius, color, jumping, player, score) {
   this.x = x;
   this.y = y;
   this.dx = dx;
   this.dy = dy;
-  this.width = width;
-  this.height = height;
+  this.radius = radius;
   this.color = color;
   this.jumping = jumping;
   this.player = player;
   this.score = score;
+  this.mass = 1;
   this.update = function () {
     if (this.player === 1) {//logic for when jumped
       if (controller.up && this.jumping === false) {
@@ -144,24 +246,26 @@ function Player(x, y, dx, dy, width, height, color, jumping, player, score) {
     this.dx *= playerFrictionX;// friction
     this.dy *= playerFrictionY;// friction
     // if rectangle is falling below floor line
-    if (this.y > c.canvas.height - 1 - squareWidth) {
+    if (this.y > c.canvas.height - 1 - radius) {
       this.jumping = false;
-      this.y = c.canvas.height - 1 - squareWidth;
+      this.y = c.canvas.height - 1 - radius;
       this.dy = 0;
     }
     // if rectangle is going off the left of the screen
     if (this.x <= 0) {
       this.x = 5;
     } else if (this.x > c.canvas.width) {// if rectangle goes past right boundary
-      this.x = c.canvas.width - 30;
+      this.x = c.canvas.width;
     }
     this.draw();
   };
   this.draw = function () {
     c.beginPath();
-    c.fillStyle = `${this.color}`;
-    c.fillRect(this.x, this.y, this.width, this.height);
+    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    c.lineWidth = 2;
+    c.fillStyle = this.color;
     c.fill();
+    c.stroke();
     c.closePath();
   };
 }
@@ -209,11 +313,13 @@ function clearScore() {
 //renders score text, calculate score conditions based on winScore value and restarts when reset triggered
 function displayScore() {
   c.beginPath();
+  //prints current score
   c.font = "30px Comic Sans MS";
   c.fillStyle = "black";
   c.textAlign = "center";
   c.fillText(`${player1.score} - ${player2.score}`, canvas.width / squareWidth, canvas.height / 16);
   c.closePath();
+  //when player1 meets win condition and restarts
   if (player1.score >= winScore || player2.score >= winScore) {
     if (player1.score - player2.score >= 2) {
       c.beginPath();
@@ -228,6 +334,7 @@ function displayScore() {
         init();
       }
     }
+    //when player2 meets win condition and restarts
     else if (player2.score - player1.score >= 2) {
       c.beginPath();
       c.font = "30px Comic Sans MS";
@@ -241,6 +348,7 @@ function displayScore() {
         init();
       }
     }
+    //when player2 gains advantage condition 
     else if (player2.score - player1.score >= 1 && player2.score - player1.score < 2) {
       c.beginPath();
       c.font = "30px Comic Sans MS";
@@ -249,6 +357,7 @@ function displayScore() {
       c.fillText(`Advantage player 2`, canvas.width / 2, canvas.height / 4);
       c.closePath();
     }
+    //when player2 gains advantage condition 
     else if (player1.score - player2.score >= 1 && player1.score - player2.score < 2) {
       c.beginPath();
       c.font = "30px Comic Sans MS";
@@ -293,18 +402,17 @@ window.addEventListener("keyup", controller.keyListener);
 /***********  Implementation  ***********************************************************************************/
 //***************************************************************************************************************/
 function init() {
-  var radius = 30;
   var player1Score = 0;
   var player2Score = 0;
   player1Controller = 2;
   player2Controller = 1;
   var x = canvas.width / 2;//randomIntFromRange(radius, canvas.width - radius);
-  var y = randomIntFromRange(radius, canvas.height - radius);
+  var y = canvas.height / 2; //randomIntFromRange(radius, canvas.height - radius);
   var dx = randomIntFromRange(-3, 3);
   var dy = randomIntFromRange(-2, 2);
-  player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, squareWidth, squareWidth, 'blue', true, player1Controller, player1Score);
-  player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, squareWidth, squareWidth, 'red', true, player2Controller, player2Score);
-  ball = new Ball(x, y, dx, dy, 30, randomColor());
+  player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, playerRadius, 'blue', true, player1Controller, player1Score);
+  player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, playerRadius, 'red', true, player2Controller, player2Score);
+  ball = new Ball(x, y, dx, dy, ballRadius, randomColor());
 }
 //****************************************************************************************************************/
 /***********  Animation Loop  ***********************************************************************************/
@@ -316,33 +424,7 @@ function animate() {
   player1.update();
   player2.update();
   displayScore();
-  if (distance(ball.x, ball.y, player1.x, player1.y) < ball.radius) {  //when ball hit player 1
-    if (player1.x >= ball.x) {
-      ball.dx = (-ball.dx - 10) * 1.1;
-      player1.dx = -player1.dx + 2;
-    }
-    if (player1.x < ball.x) {
-      ball.dx = (-ball.dx + 10) * 1.1;
-      player1.dx = -player1.dx - 2;
-    }
-    if (player1.y >= ball.y) {
-      ball.dy = -ball.dy - 10;
-    }
-  }
-  //when ball hit player 2
-  if (distance(player2.x, player2.y, ball.x, ball.y) < ball.radius) {
-    if (player2.x >= ball.x) {
-      ball.dx = (-ball.dx - 10) * 1.1;
-      player2.dx = -player2.dx + 2;
-    }
-    if (player2.x < ball.x) {
-      ball.dx = (-ball.dx + 10) * 1.1;
-      player2.dx = -player2.dx - 2;
-    }
-    if (player2.y >= ball.y) {
-      ball.dy = -ball.dy - 10;
-    }
-  }
+
   renderGates(player1.color, player2.color);  //when ball hits gate and respawn
   if (ball.x + ball.radius >= canvas.width - 1 && ball.y + ball.radius + ball.dy > canvas.height - 200) {
     softReset();
