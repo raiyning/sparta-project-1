@@ -138,22 +138,30 @@ function Ball(x, y, dx, dy, radius, color) {
     this.x += (this.dx);
     this.y += this.dy;
     //when ball hit player 1
+    // console.log(` ${player2.x - player1.x} ${player2.y - player1.y}`);
+    // if (player1.y - player2.y < playerRadius * 2 && player1.y - player2.y > -playerRadius) {
+    //   player2.dy = -player2.dy - 2;
+    // }
+    // if (player2.y - player1.y < playerRadius * 2 && player2.y - player1.y > -playerRadius) {
+    //   player1.dy = -player1.dy - 2;
+    // }
+
     if (distance(ball.x + ball.dx, ball.y + ball.dy, player1.x + player1.dx, player1.y + player1.dy) < ball.radius + playerRadius) {
-      if (player1.x + player1.radius >= ball.x + ball.radius) {
+      if (player1.x - ball.x > - playerRadius - ball.radius && ball.x - player1.x < ball.radius) {
         ball.dx = -ball.dx - 5;
         player1.dx = -player1.dx + 2;
       }
-      if (player1.x < ball.x) {
+      if (ball.x - player1.x > - playerRadius - ball.radius && player1.x - ball.x <= ball.radius) {
         ball.dx = -ball.dx + 5;
         player1.dx = -player1.dx - 2;
       }
-      if (player1.y >= ball.y) {
-        ball.dy = -ball.dy - 10;
+      if (ball.y - player1.y < playerRadius + ball.radius && ball.y - player1.y > -playerRadius) {
+        player1.dy = -player1.dy - 1;
       }
-      if (player1.y < ball.y) {
-        ball.dy = -ball.dy - 1;
-        player1.dy = -player1.dx - 10;
+      if (player1.y - ball.y < playerRadius + ball.radius && player1.y - ball.y > -playerRadius) {
+        ball.dy = -ball.dy - 2;
       }
+
     }
     if (distance(ball.x + ball.dx, ball.y + ball.dy, player2.x + player2.dx, player2.y + player2.dy) < ball.radius + playerRadius) {
       if (player2.x >= ball.x) {
@@ -423,10 +431,11 @@ function animate() {
   ball.update();
   player1.update();
   player2.update();
+  console.log(` ${ball.x - player1.x} ${ball.y - player1.y}`);
   displayScore();
-
+  // player collision 
   //console.log(distance(player1.x, player1.y, player2.x, player2.y));
-  console.log(` ${player2.x - player1.x} ${player2.y - player1.y}`);
+  //console.log(` ${player2.x - player1.x} ${player2.y - player1.y}`);
   if (distance(player1.x, player1.y, player2.x, player2.y) < playerRadius * 2) {
     if (player2.x - player1.x > -playerRadius * 2 && player2.x - player1.x < playerRadius) {
       player1.dx = -player1.dx + 2;
@@ -443,8 +452,6 @@ function animate() {
       player1.dy = -player1.dy - 2;
     }
   }
-
-
   renderGates(player1.color, player2.color);  //when ball hits gate and respawn
   if (ball.x + ball.radius >= canvas.width - 1 && ball.y + ball.radius + ball.dy > canvas.height - 200) {
     softReset();
