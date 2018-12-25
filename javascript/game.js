@@ -113,13 +113,13 @@ var jumpDistance = 35;//jump height of players
 /***********  Objects ********************************************************************************************/
 //***************************************************************************************************************/
 //this is ball
-function Ball(x, y, dx, dy, radius, color) {
+function Ball(x, y, dx, dy, radius) {
   this.x = x;
   this.y = y;
   this.dx = dx
   this.dy = dy;
   this.radius = radius;
-  this.color = color;
+  this.color = randomColor();
   this.mass = 1;
   this.update = function () {
     if (this.y + this.radius + this.dy > canvas.height) {
@@ -415,7 +415,7 @@ function init() {
   var dy = randomIntFromRange(-2, 2);
   player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, playerRadius, 'blue', true, player1Controller, player1Score);
   player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, playerRadius, 'red', true, player2Controller, player2Score);
-  ball = new Ball(x, y, dx, dy, ballRadius, randomColor());
+  ball = new Ball(x, y, dx, dy, ballRadius);
 }
 //****************************************************************************************************************/
 /***********  Animation Loop  ***********************************************************************************/
@@ -461,4 +461,13 @@ function animate() {
 /***********  START PROGRAM ***********************************************************************************/
 //***************************************************************************************************************/
 init();
+
+//testing dat.gui
+gui = new dat.GUI();
+gui.close();
+gui.add(ball, 'radius', 1, 50);
+gui.add(player1, 'radius', 1, 50);
+gui.add(player2, 'radius', 1, 50);
+gui.add(ball, 'color');
+
 animate();
