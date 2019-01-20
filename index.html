@@ -6,15 +6,43 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Futebol Heads</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+    crossorigin="anonymous">
   <link rel="stylesheet" type="text/css" media="screen" href="css/main.css" />
-  <script src="main.js"></script>
 </head>
 
-<body>
+<!-- <body>
   <h1>Not Fortnite</h1>
   <p><a href="pages/game.html">go to 2 player game</a></p>
   <p><a href="pages/singlePlayer.html">single player</a></p>
   <p><a href="pages/instruction.html">instruction</a></p>
+</body> -->
+
+<body class="text-center">
+  <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+    <header class="masthead mb-auto">
+      <div class="inner">
+        <h3 class="masthead-brand">Not Fortnite</h3>
+        <nav class="nav nav-masthead justify-content-center">
+          <a class="nav-link active" href="#">Home</a>
+          <a class="nav-link" href="pages/game.html">Two Player</a>
+          <a class="nav-link" href="pages/singlePlayer.html">Single Player</a>
+          <a class="nav-link" href="pages/instruction.html">Instructions</a>
+        </nav>
+      </div>
+    </header>
+
+    <main role="main" class="inner cover">
+      <canvas id="c"></canvas>
+    </main>
+
+    <footer class="mastfoot mt-auto">
+      <div class="inner">
+
+      </div>
+    </footer>
+  </div>
+  <script src="/javascript/index.js"></script>
 </body>
 
 </html>

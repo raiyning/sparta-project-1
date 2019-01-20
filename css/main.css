@@ -1,6 +1,6 @@
 canvas {
   border: 0px solid white;
-  background: rgb(248, 213, 97);
+  background: rgb(253, 219, 106);
 }
 
 body {
@@ -14,3 +14,9 @@ h1{
 p{
   text-align: center;
 }
+
+.cover-container{
+  background: rgb(248, 213, 97);
+}
+
+

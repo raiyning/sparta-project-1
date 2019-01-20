@@ -25,7 +25,6 @@ function distance(x1, y1, x2, y2) {
  * @param  Float  | angle    | The angle of collision between two objects in radians
  * @return Object | The altered x and y velocities after the coordinate system has been rotated
  */
-
 function rotate(velocityX, velocityY, angle) {
   const rotatedVelocities = {
     x: velocityX * Math.cos(angle) - velocityY * Math.sin(angle),
@@ -356,12 +355,12 @@ function softReset() {
   player1.x = canvas.width / 4;
   player2.x = canvas.width * 3 / 4;
 }
-function backgroundSong() {
-  myGamePiece = new component(30, 30, "red", 10, 120);
-  mySound = new sound("");
-  myMusic = new sound("");
-  myMusic.play();
-  myGameArea.start();
+//****************************************************************************************************************/
+/***********  Audio  ***********************************************************************************/
+//***************************************************************************************************************/
+function backgroundSound() {
+  var backgroundSound = new Audio();
+  backgroundSound.src = '../vapourwave.mp3';
 }
 //****************************************************************************************************************/
 /***********  Event Listeners  ***********************************************************************************/
@@ -392,6 +391,9 @@ function init() {
   player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, playerRadius, 'blue', true, player1Controller, player1Score);
   player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, playerRadius, 'red', true, player2Controller, player2Score);
   ball = new Ball(x, y, dx, dy, ballRadius);
+  var backgroundSound = new Audio();
+  backgroundSound.src = '../jon.mp3';
+  backgroundSound.play();
 }
 //****************************************************************************************************************/
 /***********  Animation Loop  ***********************************************************************************/
