@@ -4,7 +4,7 @@ var text;
 var ballSpeed = 1;
 //GUIパラメータの準備
 var sampleText = function () {
-  this.message = "Radical Instrudtcions";
+  this.message = "Radical Instructions";
   this.color = "#ff0000";
   this.fontSize = 24;
   this.border = false;

@@ -16,23 +16,6 @@ function distance(x1, y1, x2, y2) {
   const yDist = y2 - y1
   return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2))
 }
-/**
- * Rotates coordinate system for velocities
- *
- * Takes velocities and alters them as if the coordinate system they're on was rotated
- *
- * @param  Object | velocity | The velocity of an individual particle
- * @param  Float  | angle    | The angle of collision between two objects in radians
- * @return Object | The altered x and y velocities after the coordinate system has been rotated
- */
-function rotate(velocityX, velocityY, angle) {
-  const rotatedVelocities = {
-    x: velocityX * Math.cos(angle) - velocityY * Math.sin(angle),
-    y: velocityX * Math.sin(angle) + velocityY * Math.cos(angle)
-  };
-
-  return rotatedVelocities;
-}
 //****************************************************************************************************************/
 /***********  Initial Setup ********************************************************************************************/
 //***************************************************************************************************************/
@@ -218,7 +201,6 @@ function Player(x, y, dx, dy, radius, color, jumping, player, score) {
         }
       }
     }
-
     this.dy += this.gravity;// gravity
     this.x += this.dx;
     this.y += this.dy;
@@ -257,6 +239,7 @@ function powerUp(radius) {
   this.color = randomColor();
   this.distance = 0;
   this.update = function () {
+    //collision with boundaries
     if (this.y + this.radius + this.dy > canvas.height) {
       this.dy = -this.dy;
       this.dy = this.dy;
@@ -268,7 +251,7 @@ function powerUp(radius) {
     if (this.y + this.radius < 0) {
       this.dy = -this.dy;
     }
-    //zipping effect statements
+    //zipping random movement effect
     if (this.distance > 30) {
       if (this.dy % 3 == 0) {
         this.dy = this.dx + randomIntFromRange(0, 3);
@@ -422,11 +405,12 @@ function softReset() {
   player2.x = canvas.width * 3 / 4;
 }
 //****************************************************************************************************************/
-/***********  Audio  ***********************************************************************************/
+/***********  Audio  not in use at the moment***********************************************************************************/
 //***************************************************************************************************************/
 function backgroundSound() {
   var backgroundSound = new Audio();
   backgroundSound.src = '../assets/vapourwave.mp3';
+  backgroundSound.play();
 }
 //****************************************************************************************************************/
 /***********  Event Listeners  ***********************************************************************************/
@@ -459,8 +443,8 @@ function init() {
   ball = new Ball(x, y, dx, dy, ballRadius);
   powerUp = new powerUp(10);
   var backgroundSound = new Audio();
-  backgroundSound.src = '../vapourwave.mp3';
-  //backgroundSound.play();
+  backgroundSound.src = '../assets/vapourwave.mp3';
+  backgroundSound.play();
 }
 //****************************************************************************************************************/
 /***********  Animation Loop  ***********************************************************************************/
@@ -471,7 +455,9 @@ function animate() {
   ball.update();
   player1.update();
   player2.update();
-  setTimeout(powerUp.update(), 10000);
+  setTimeout(function () {
+    powerUp.update()
+  }, 10000);
 
   displayScore();
   // player collision: distance checker: console.log(distance(player1.x, player1.y, player2.x, player2.y));
@@ -480,7 +466,8 @@ function animate() {
   if (powerUp.dx > 3 && powerUp.dx < 0) {
     powerUp.dx
   }
-  console.log(` dist =${powerUp.distance}   x=${powerUp.x}  dx=${powerUp.dx}  ${canvas.height}`);
+  //checkparameters on console log for debugging
+  //console.log(` dist =${powerUp.distance}   x=${powerUp.x}  dx=${powerUp.dx}  ${canvas.height}`);
   if (distance(player1.x, player1.y, player2.x, player2.y) < playerRadius * 2) {
     if (player2.x - player1.x > -playerRadius * 2 && player2.x - player1.x < playerRadius) {
       player1.dx = -player1.dx + 2;
@@ -513,7 +500,6 @@ function animate() {
 /***********  START PROGRAM ***********************************************************************************/
 //***************************************************************************************************************/
 init();
-
 //testing dat.gui
 gui = new dat.GUI();
 gui.close();
@@ -532,5 +518,5 @@ f3.close();
 var f4 = gui.addFolder('Power up');
 f4.add(powerUp, 'radius', 0, 100);
 f4.close();
-
+//animation
 animate();
