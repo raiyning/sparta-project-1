@@ -214,7 +214,7 @@ function Player(x, y, dx, dy, radius, color, jumping, player, score) {
         if (distance(this.x + this.dx, this.y + this.dy, ball.x + ball.dx, ball.y + ball.dy) < ballRadius * 2 + this.radius * 2) {
           this.dy -= jumpDistance;
           this.jumping = true;
-          this.dx += 0.5;
+          this.dx += 2;
         }
       }
     }
@@ -269,17 +269,33 @@ function powerUp(radius) {
       this.dy = -this.dy;
     }
     //zipping effect statements
-    if (this.distance > canvas.height / 2) {
-      this.dy = 2//-randomIntFromRange(-3, 6);
-      if (this.dy > canvas.height - gateHeight) {
-        this.dy = 3;
+    if (this.distance > 30) {
+      if (this.dy % 3 == 0) {
+        this.dy = this.dx + randomIntFromRange(0, 3);
+        if (this.dy > 5) {
+          this.dy = 1;
+        }
+      }
+      else {
+        this.dy = -this.dy - randomIntFromRange(0, 3);
+        if (this.dy < -5) {
+          this.dy = 0;
+        }
       }
       this.distance = 0
     }
     if (this.distance > 30) {
-      this.dx = -this.dx + (0.1 * this.distance);
-      if (this.dx > 5) {
-        this.dx = this.dx - (0.1 * this.distance);
+      if (this.dx % 2 == 0) {
+        this.dx = this.dx + randomIntFromRange(0, 3);
+        if (this.dx > 5) {
+          this.dx = 1;
+        }
+      }
+      else {
+        this.dx = -this.dx - randomIntFromRange(0, 3);
+        if (this.dx < -5) {
+          this.dx = 0;
+        }
       }
       this.distance = 0
     }
@@ -455,7 +471,8 @@ function animate() {
   ball.update();
   player1.update();
   player2.update();
-  powerUp.update();
+  setTimeout(powerUp.update(), 10000);
+
   displayScore();
   // player collision: distance checker: console.log(distance(player1.x, player1.y, player2.x, player2.y));
   //console.log(` ${ball.y - player1.y}`);
@@ -463,7 +480,7 @@ function animate() {
   if (powerUp.dx > 3 && powerUp.dx < 0) {
     powerUp.dx
   }
-  console.log(` dist =${powerUp.distance}   y=${powerUp.y}  dy=${powerUp.dy}  ${canvas.height}`);
+  console.log(` dist =${powerUp.distance}   x=${powerUp.x}  dx=${powerUp.dx}  ${canvas.height}`);
   if (distance(player1.x, player1.y, player2.x, player2.y) < playerRadius * 2) {
     if (player2.x - player1.x > -playerRadius * 2 && player2.x - player1.x < playerRadius) {
       player1.dx = -player1.dx + 2;
