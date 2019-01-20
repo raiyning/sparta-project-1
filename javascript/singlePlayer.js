@@ -62,6 +62,7 @@ var squareWidth = 35;//player size
 var playerRadius = 25;
 var ballRadius = 35;
 var jumpDistance = 35;//jump height of players
+var gateHeight = 200;
 //****************************************************************************************************************/
 /***********  Objects ********************************************************************************************/
 //***************************************************************************************************************/
@@ -149,14 +150,14 @@ function renderGates(color1, color2) {
   c.save();
   c.beginPath();
   c.moveTo(0, canvas.height);
-  c.lineTo(0, canvas.height - 200);
+  c.lineTo(0, canvas.height - gateHeight);
   c.strokeStyle = color1;
   c.lineWidth = 30;
   c.stroke();
   c.closePath();
   c.beginPath();
   c.moveTo(canvas.width, canvas.height);
-  c.lineTo(canvas.width, canvas.height - 200);
+  c.lineTo(canvas.width, canvas.height - gateHeight);
   c.strokeStyle = color2;
   c.lineWidth = 30;
   c.stroke();
@@ -247,7 +248,56 @@ function Player(x, y, dx, dy, radius, color, jumping, player, score) {
     c.closePath();
   };
 }
-// controller containing logic
+function powerUp(radius) {
+  this.x = randomIntFromRange(radius, canvas.width - radius);;
+  this.y = randomIntFromRange(radius, canvas.height - radius);;
+  this.dx = randomIntFromRange(-3, 3)
+  this.dy = randomIntFromRange(-2, 2);
+  this.radius = radius;
+  this.color = randomColor();
+  this.distance = 0;
+  this.update = function () {
+    if (this.y + this.radius + this.dy > canvas.height) {
+      this.dy = -this.dy;
+      this.dy = this.dy;
+      this.dx = this.dx;
+    }
+    if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
+      this.dx = -this.dx;
+    }
+    if (this.y + this.radius < 0) {
+      this.dy = -this.dy;
+    }
+    //zipping effect statements
+    if (this.distance > 50 && this.dy % 2 == 0) {
+      this.dy = -this.dy + (0.1 * this.distance);
+      if (this.dy > canvas.height - gateHeight) {
+        this.dy = this.dy + (0.2 * this.distance);
+      }
+      this.distance = 0
+    }
+    if (this.distance > 50) {
+      this.dx = -this.dx + (0.2 * this.distance);
+      if (this.dx > 5) {
+        this.dx = this.dx - (0.1 * this.distance);
+      }
+      this.distance = 0
+    }
+    // velocity translation after conditions applied
+    this.x += this.dx;
+    this.y += this.dy;
+    this.distance += 1;
+    this.draw();
+  };
+  this.draw = function () {
+    c.beginPath();
+    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    c.fillStyle = this.color;
+    c.fill();
+    c.closePath();
+  };
+}
+// controller containing keyboard logic
 controller = {
   left: false,
   right: false,
@@ -360,7 +410,7 @@ function softReset() {
 //***************************************************************************************************************/
 function backgroundSound() {
   var backgroundSound = new Audio();
-  backgroundSound.src = '../vapourwave.mp3';
+  backgroundSound.src = '../assets/vapourwave.mp3';
 }
 //****************************************************************************************************************/
 /***********  Event Listeners  ***********************************************************************************/
@@ -391,9 +441,10 @@ function init() {
   player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, playerRadius, 'blue', true, player1Controller, player1Score);
   player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, playerRadius, 'red', true, player2Controller, player2Score);
   ball = new Ball(x, y, dx, dy, ballRadius);
+  powerUp = new powerUp(10);
   var backgroundSound = new Audio();
-  backgroundSound.src = '../jon.mp3';
-  backgroundSound.play();
+  backgroundSound.src = '../vapourwave.mp3';
+  //backgroundSound.play();
 }
 //****************************************************************************************************************/
 /***********  Animation Loop  ***********************************************************************************/
@@ -404,9 +455,15 @@ function animate() {
   ball.update();
   player1.update();
   player2.update();
+  powerUp.update();
   displayScore();
   // player collision: distance checker: console.log(distance(player1.x, player1.y, player2.x, player2.y));
   //console.log(` ${ball.y - player1.y}`);
+
+  if (powerUp.dx > 3 && powerUp.dx < 0) {
+    powerUp.dx
+  }
+  console.log(`${powerUp.x}  ${powerUp.y} ${powerUp.dx}  ${powerUp.dy} ${canvas.height}`);
   if (distance(player1.x, player1.y, player2.x, player2.y) < playerRadius * 2) {
     if (player2.x - player1.x > -playerRadius * 2 && player2.x - player1.x < playerRadius) {
       player1.dx = -player1.dx + 2;
@@ -455,6 +512,8 @@ var f3 = gui.addFolder('Player 2');
 f3.add(player2, 'radius', 1, 50);
 f3.add(player2, 'gravity', 0, 30);
 f3.close();
-
+var f4 = gui.addFolder('Power up');
+f4.add(powerUp, 'radius', 0, 100);
+f4.close();
 
 animate();
