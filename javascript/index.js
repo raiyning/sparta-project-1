@@ -52,7 +52,7 @@ var gravity = 1; //ball gravity
 function init() {
   var ballRadius = 40;
   var x = canvas.width / 2;//randomIntFromRange(radius, canvas.width - radius);
-  var y = canvas.height / 2; //randomIntFromRange(radius, canvas.height - radius);
+  var y = 60; //randomIntFromRange(radius, canvas.height - radius);
   var dx = randomIntFromRange(-3, 3);
   var dy = randomIntFromRange(-2, 2);
   ball = new Ball(x, y, dx, dy, ballRadius);

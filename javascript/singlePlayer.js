@@ -269,15 +269,15 @@ function powerUp(radius) {
       this.dy = -this.dy;
     }
     //zipping effect statements
-    if (this.distance > 50 && this.dy % 2 == 0) {
-      this.dy = -this.dy + (0.1 * this.distance);
+    if (this.distance > canvas.height / 2) {
+      this.dy = 2//-randomIntFromRange(-3, 6);
       if (this.dy > canvas.height - gateHeight) {
-        this.dy = this.dy + (0.2 * this.distance);
+        this.dy = 3;
       }
       this.distance = 0
     }
-    if (this.distance > 50) {
-      this.dx = -this.dx + (0.2 * this.distance);
+    if (this.distance > 30) {
+      this.dx = -this.dx + (0.1 * this.distance);
       if (this.dx > 5) {
         this.dx = this.dx - (0.1 * this.distance);
       }
@@ -463,7 +463,7 @@ function animate() {
   if (powerUp.dx > 3 && powerUp.dx < 0) {
     powerUp.dx
   }
-  console.log(`${powerUp.x}  ${powerUp.y} ${powerUp.dx}  ${powerUp.dy} ${canvas.height}`);
+  console.log(` dist =${powerUp.distance}   y=${powerUp.y}  dy=${powerUp.dy}  ${canvas.height}`);
   if (distance(player1.x, player1.y, player2.x, player2.y) < playerRadius * 2) {
     if (player2.x - player1.x > -playerRadius * 2 && player2.x - player1.x < playerRadius) {
       player1.dx = -player1.dx + 2;
@@ -481,12 +481,12 @@ function animate() {
     }
   }
   renderGates(player1.color, player2.color);  //when ball hits gate and respawn
-  if (ball.x + ball.radius >= canvas.width - 1 && ball.y + ball.radius + ball.dy > canvas.height - 200) {
+  if (ball.x + ball.radius >= canvas.width - 1 && ball.y + ball.radius + ball.dy > canvas.height - gateHeight) {
     softReset();
     player1.score++;
     displayScore();
   }   // The ball hitting the left gate
-  if (ball.x - ball.radius <= 1 && ball.y + ball.radius + ball.dy > canvas.height - 200) {
+  if (ball.x - ball.radius <= 1 && ball.y + ball.radius + ball.dy > canvas.height - gateHeight) {
     softReset();
     player2.score++;
     displayScore();
