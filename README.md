@@ -26,3 +26,4 @@ Created a simple 2d football game with simple physics and borders and goal posts
 2. Physics of collision combined with gravity and friction for smoother and realistic movement
 3. learning to use objects and its advantages over using only functions
 4. scope of variables and javascript logic quirks 
+5. Using objects and learning their interactions/scope within the code
