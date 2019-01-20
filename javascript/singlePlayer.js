@@ -16,24 +16,6 @@ function distance(x1, y1, x2, y2) {
   const yDist = y2 - y1
   return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2))
 }
-/**
- * Rotates coordinate system for velocities
- *
- * Takes velocities and alters them as if the coordinate system they're on was rotated
- *
- * @param  Object | velocity | The velocity of an individual particle
- * @param  Float  | angle    | The angle of collision between two objects in radians
- * @return Object | The altered x and y velocities after the coordinate system has been rotated
- */
-
-function rotate(velocityX, velocityY, angle) {
-  const rotatedVelocities = {
-    x: velocityX * Math.cos(angle) - velocityY * Math.sin(angle),
-    y: velocityX * Math.sin(angle) + velocityY * Math.cos(angle)
-  };
-
-  return rotatedVelocities;
-}
 //****************************************************************************************************************/
 /***********  Initial Setup ********************************************************************************************/
 //***************************************************************************************************************/
@@ -63,6 +45,7 @@ var squareWidth = 35;//player size
 var playerRadius = 25;
 var ballRadius = 35;
 var jumpDistance = 35;//jump height of players
+var gateHeight = 200;
 //****************************************************************************************************************/
 /***********  Objects ********************************************************************************************/
 //***************************************************************************************************************/
@@ -150,14 +133,14 @@ function renderGates(color1, color2) {
   c.save();
   c.beginPath();
   c.moveTo(0, canvas.height);
-  c.lineTo(0, canvas.height - 200);
+  c.lineTo(0, canvas.height - gateHeight);
   c.strokeStyle = color1;
   c.lineWidth = 30;
   c.stroke();
   c.closePath();
   c.beginPath();
   c.moveTo(canvas.width, canvas.height);
-  c.lineTo(canvas.width, canvas.height - 200);
+  c.lineTo(canvas.width, canvas.height - gateHeight);
   c.strokeStyle = color2;
   c.lineWidth = 30;
   c.stroke();
@@ -214,11 +197,10 @@ function Player(x, y, dx, dy, radius, color, jumping, player, score) {
         if (distance(this.x + this.dx, this.y + this.dy, ball.x + ball.dx, ball.y + ball.dy) < ballRadius * 2 + this.radius * 2) {
           this.dy -= jumpDistance;
           this.jumping = true;
-          this.dx += 0.5;
+          this.dx += 2;
         }
       }
     }
-
     this.dy += this.gravity;// gravity
     this.x += this.dx;
     this.y += this.dy;
@@ -248,7 +230,73 @@ function Player(x, y, dx, dy, radius, color, jumping, player, score) {
     c.closePath();
   };
 }
-// controller containing logic
+function powerUp(radius) {
+  this.x = randomIntFromRange(radius, canvas.width - radius);;
+  this.y = randomIntFromRange(radius, canvas.height - radius);;
+  this.dx = randomIntFromRange(-3, 3)
+  this.dy = randomIntFromRange(-2, 2);
+  this.radius = radius;
+  this.color = randomColor();
+  this.distance = 0;
+  this.update = function () {
+    //collision with boundaries
+    if (this.y + this.radius + this.dy > canvas.height) {
+      this.dy = -this.dy;
+      this.dy = this.dy;
+      this.dx = this.dx;
+    }
+    if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
+      this.dx = -this.dx;
+    }
+    if (this.y + this.radius < 0) {
+      this.dy = -this.dy;
+    }
+    //zipping random movement effect
+    if (this.distance > 30) {
+      if (this.dy % 3 == 0) {
+        this.dy = this.dx + randomIntFromRange(0, 3);
+        if (this.dy > 5) {
+          this.dy = 1;
+        }
+      }
+      else {
+        this.dy = -this.dy - randomIntFromRange(0, 3);
+        if (this.dy < -5) {
+          this.dy = 0;
+        }
+      }
+      this.distance = 0
+    }
+    if (this.distance > 30) {
+      if (this.dx % 2 == 0) {
+        this.dx = this.dx + randomIntFromRange(0, 3);
+        if (this.dx > 5) {
+          this.dx = 1;
+        }
+      }
+      else {
+        this.dx = -this.dx - randomIntFromRange(0, 3);
+        if (this.dx < -5) {
+          this.dx = 0;
+        }
+      }
+      this.distance = 0
+    }
+    // velocity translation after conditions applied
+    this.x += this.dx;
+    this.y += this.dy;
+    this.distance += 1;
+    this.draw();
+  };
+  this.draw = function () {
+    c.beginPath();
+    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    c.fillStyle = this.color;
+    c.fill();
+    c.closePath();
+  };
+}
+// controller containing keyboard logic
 controller = {
   left: false,
   right: false,
@@ -356,12 +404,13 @@ function softReset() {
   player1.x = canvas.width / 4;
   player2.x = canvas.width * 3 / 4;
 }
-function backgroundSong() {
-  myGamePiece = new component(30, 30, "red", 10, 120);
-  mySound = new sound("");
-  myMusic = new sound("");
-  myMusic.play();
-  myGameArea.start();
+//****************************************************************************************************************/
+/***********  Audio  not in use at the moment***********************************************************************************/
+//***************************************************************************************************************/
+function backgroundSound() {
+  var backgroundSound = new Audio();
+  backgroundSound.src = '../assets/vapourwave.mp3';
+  backgroundSound.play();
 }
 //****************************************************************************************************************/
 /***********  Event Listeners  ***********************************************************************************/
@@ -392,6 +441,10 @@ function init() {
   player1 = new Player(canvas.width / 4, canvas.height / 3, 0, 0, playerRadius, 'blue', true, player1Controller, player1Score);
   player2 = new Player(3 * canvas.width / 4, canvas.height / 3, 0, 0, playerRadius, 'red', true, player2Controller, player2Score);
   ball = new Ball(x, y, dx, dy, ballRadius);
+  powerUp = new powerUp(10);
+  var backgroundSound = new Audio();
+  backgroundSound.src = '../assets/vapourwave.mp3';
+  backgroundSound.play();
 }
 //****************************************************************************************************************/
 /***********  Animation Loop  ***********************************************************************************/
@@ -402,9 +455,19 @@ function animate() {
   ball.update();
   player1.update();
   player2.update();
+  setTimeout(function () {
+    powerUp.update()
+  }, 10000);
+
   displayScore();
   // player collision: distance checker: console.log(distance(player1.x, player1.y, player2.x, player2.y));
   //console.log(` ${ball.y - player1.y}`);
+
+  if (powerUp.dx > 3 && powerUp.dx < 0) {
+    powerUp.dx
+  }
+  //checkparameters on console log for debugging
+  //console.log(` dist =${powerUp.distance}   x=${powerUp.x}  dx=${powerUp.dx}  ${canvas.height}`);
   if (distance(player1.x, player1.y, player2.x, player2.y) < playerRadius * 2) {
     if (player2.x - player1.x > -playerRadius * 2 && player2.x - player1.x < playerRadius) {
       player1.dx = -player1.dx + 2;
@@ -422,12 +485,12 @@ function animate() {
     }
   }
   renderGates(player1.color, player2.color);  //when ball hits gate and respawn
-  if (ball.x + ball.radius >= canvas.width - 1 && ball.y + ball.radius + ball.dy > canvas.height - 200) {
+  if (ball.x + ball.radius >= canvas.width - 1 && ball.y + ball.radius + ball.dy > canvas.height - gateHeight) {
     softReset();
     player1.score++;
     displayScore();
   }   // The ball hitting the left gate
-  if (ball.x - ball.radius <= 1 && ball.y + ball.radius + ball.dy > canvas.height - 200) {
+  if (ball.x - ball.radius <= 1 && ball.y + ball.radius + ball.dy > canvas.height - gateHeight) {
     softReset();
     player2.score++;
     displayScore();
@@ -437,7 +500,6 @@ function animate() {
 /***********  START PROGRAM ***********************************************************************************/
 //***************************************************************************************************************/
 init();
-
 //testing dat.gui
 gui = new dat.GUI();
 gui.close();
@@ -453,6 +515,8 @@ var f3 = gui.addFolder('Player 2');
 f3.add(player2, 'radius', 1, 50);
 f3.add(player2, 'gravity', 0, 30);
 f3.close();
-
-
+var f4 = gui.addFolder('Power up');
+f4.add(powerUp, 'radius', 0, 100);
+f4.close();
+//animation
 animate();
